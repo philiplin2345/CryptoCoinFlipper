@@ -4,14 +4,16 @@
 
 const serverUrl = "https://r4h4symaponq.usemoralis.com:2053/server";
 const appId = "Lyq1fkNR3hbHJv9XIkgDtCCjFU0CA1nPP4WTfY5r";
+const ethers = Moralis.web3Library
 Moralis.start({ serverUrl, appId });
 
 /** Add from here down */
 async function login() {
   let user = Moralis.User.current();
+  console.log(user.get('ethAddress'));
   if (!user) {
    try {
-      user = await Moralis.authenticate({ signingMessage: "Hello World!" })
+      user = await Moralis.enableWeb3({ provider: "metamask", signingMessage: "Hello World!" })
       console.log(user)
       console.log(user.get('ethAddress'))      
    } catch(error) {
@@ -28,22 +30,32 @@ async function logOut() {
 }
 
 async function flip(side){
-  await Moralis.enableWeb3()
   let amount = document.getElementById("amount").value;
   alert(side+ ' ' + amount);
-  window.web3 = new Web3(Moralis.provider);
-  let contractInstance = new web3.eth.Contract(window.abi,"0x228Bc6ba4fC3cDA34e41626F3707b46E08A5BECC")
-  contractInstance.methods.flip(side == "heads"? 0:1).send({value: amount, from: ethereum.selectedAddress})
-  .on('receipt', function(receipt){
-    console.log(receipt);
-    if(receipt.events.bet.returnValues.win){
-      alert("YOU WON");
+  let web3Provider = await Moralis.enableWeb3();
+  
+  console.log(web3.version);
+  let contractInstance = new ethers.Contract("0x6D55D5E5FcebE9965C176D6EBc6693Da064e3b04",window.abi,web3Provider.getSigner())
+  // let contractInstance = new web3.eth.Contract(window.abi,"0x06eE0Cbd7821C89416Dc606D8440eb688f93b416")
+  // let contractInstance = await ethereum.request({method: 'contract', params:[{jsonInterface:window.abi, address:"0x06eE0Cbd7821C89416Dc606D8440eb688f93b416" }] })
+  contractInstance.on("bet", (user,  bet,  win, side)=>{
+    console.log(user,bet,win,side)
+  }
+  );
 
-    }
-    else{
-      alert("YOU LOST")
-    }
-  })
+  console.log(contractInstance);
+  let results = contractInstance.flip(side == "heads"? 0:1,{value: amount, from: ethereum.selectedAddress, gasLimit: 99999})
+
+  // .on('receipt', function(receipt){
+  //   console.log(receipt);
+  //   if(receipt.events.bet.returnValues.win){
+  //     alert("YOU WON");
+
+  //   }
+  //   else{
+  //     alert("YOU LOST")
+  //   }
+  // })
 }
 
 document.getElementById("btn-login").onclick = login;
