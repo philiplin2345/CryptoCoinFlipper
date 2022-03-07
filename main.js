@@ -2,15 +2,15 @@
 
 
 
-const serverUrl = "https://r4h4symaponq.usemoralis.com:2053/server";
-const appId = "Lyq1fkNR3hbHJv9XIkgDtCCjFU0CA1nPP4WTfY5r";
+const serverUrl = "https://ejh3gnsrvzo6.usemoralis.com:2053/server";
+const appId = "ggnKKGE0rdvgzLLPDvAl2CPLUx2esIeuPsyKNbQW";
 const ethers = Moralis.web3Library
 Moralis.start({ serverUrl, appId });
-
+Moralis.authenticate();
 /** Add from here down */
 async function login() {
   let user = Moralis.User.current();
-  console.log(user.get('ethAddress'));
+  console.log(user);
   if (!user) {
    try {
       user = await Moralis.enableWeb3({ provider: "metamask", signingMessage: "Hello World!" })
@@ -35,7 +35,7 @@ async function flip(side){
   let web3Provider = await Moralis.enableWeb3();
   
   console.log(web3.version);
-  let contractInstance = new ethers.Contract("0x6D55D5E5FcebE9965C176D6EBc6693Da064e3b04",window.abi,web3Provider.getSigner())
+  let contractInstance = new ethers.Contract("0xA744aF6bD7767738dDE56C18626CF8282eA5A035",window.abi,web3Provider.getSigner())
   // let contractInstance = new web3.eth.Contract(window.abi,"0x06eE0Cbd7821C89416Dc606D8440eb688f93b416")
   // let contractInstance = await ethereum.request({method: 'contract', params:[{jsonInterface:window.abi, address:"0x06eE0Cbd7821C89416Dc606D8440eb688f93b416" }] })
   contractInstance.on("bet", (user,  bet,  win, side)=>{
